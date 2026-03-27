@@ -1,0 +1,144 @@
+{
+  "name": "codetrackr-official",
+  "displayName": "CodeTrackr (Official)",
+  "publisher": "livrasand",
+  "icon": "logo.png",
+  "description": "Open-source, privacy-first coding metrics with a modular plugin system. Track time across IDEs, join global leaderboards, and build custom dashboard widgets using our developer-friendly API.",
+  "version": "1.0.0",
+  "engines": {
+    "vscode": "^1.107.0"
+  },
+  "categories": [
+    "Other",
+    "Programming Languages",
+    "Visualization",
+    "Data Science",
+    "Education"
+  ],
+  "keywords": [
+    "codetrackr",
+    "time tracking",
+    "stats",
+    "productivity",
+    "wakatime",
+    "code",
+    "code time",
+    "codetime",
+    "data",
+    "time",
+    "worktime",
+    "analytics",
+    "flow",
+    "focus",
+    "metrics",
+    "slack",
+    "standup",
+    "time tracker",
+    "timer",
+    "todo",
+    "tracker",
+    "tracking",
+    "coding"
+  ],
+  "author": {
+    "name": "Livrädo Sandoval",
+    "url": "https://github.com/livrasand"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/livrasand/codetrackr-vscode.git"
+  },
+  "bugs": {
+    "url": "https://github.com/livrasand/codetrackr-vscode/issues"
+  },
+  "homepage": "https://codetrackr.leapcell.app",
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "CodeTrackr",
+      "properties": {
+        "codetrackr.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Your CodeTrackr API Key (starts with ct_)"
+        },
+        "codetrackr.baseUrl": {
+          "type": "string",
+          "default": "https://codetrackr.leapcell.app",
+          "description": "Custom CodeTrackr instance URL"
+        },
+        "codetrackr.statusBarStyle": {
+          "type": "string",
+          "enum": [
+            "Today",
+            "24h",
+            "Total",
+            "None"
+          ],
+          "default": "Today",
+          "description": "Select what to display in the Status Bar"
+        },
+        "codetrackr.statusBarAlignment": {
+          "type": "string",
+          "enum": [
+            "Left",
+            "Right"
+          ],
+          "default": "Right",
+          "description": "Set the alignment of the Status Bar item"
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "codetrackr-vscode.showLog",
+        "title": "CodeTrackr: Show Log"
+      },
+      {
+        "command": "codetrackr-vscode.enterToken",
+        "title": "CodeTrackr: Enter API Key"
+      },
+      {
+        "command": "codetrackr-vscode.openDashboard",
+        "title": "CodeTrackr: Open Dashboard"
+      },
+      {
+        "command": "codetrackr-vscode.setStatusBarStyle",
+        "title": "CodeTrackr: Status Bar Style"
+      },
+      {
+        "command": "codetrackr-vscode.statusBarAlignment",
+        "title": "CodeTrackr: Status Bar Alignment"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "pnpm run package",
+    "compile": "pnpm run check-types && pnpm run lint && node esbuild.js",
+    "watch": "npm-run-all -p watch:*",
+    "watch:esbuild": "node esbuild.js --watch",
+    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+    "package": "pnpm run check-types && pnpm run lint && node esbuild.js --production",
+    "vsix": "pnpm run package && vsce package --no-dependencies",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.107.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "22.x",
+    "typescript-eslint": "^8.54.0",
+    "eslint": "^9.39.2",
+    "esbuild": "^0.27.2",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.9.3",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.0.0"
+  }
+}
