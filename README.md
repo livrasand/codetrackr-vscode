@@ -2,7 +2,7 @@
 
 **CodeTrackr** is an open-source VS Code plugin for metrics, insights, and time tracking automatically generated from your programming activity.
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue?style=flat-square)
+![Version](https://img.shields.io/badge/version-1.0.1-blue?style=flat-square)
 
 ## Installation
 
