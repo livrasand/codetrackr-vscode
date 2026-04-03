@@ -41,8 +41,7 @@ export function activate(context: vscode.ExtensionContext) {
             const cleanKey = apiKey.trim().replace(/[^\x00-\x7F]/g, ""); // Limpia caracteres extraños
             await config.update('apiKey', cleanKey, vscode.ConfigurationTarget.Global);
             vscode.window.showInformationMessage("API Key de CodeTrackr actualizada.");
-            tracker.onEvent(false);
-            tracker.refreshStats();
+            tracker.reset();
         }
     }));
 
@@ -80,8 +79,7 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.workspace.onDidSaveTextDocument(() => tracker.onEvent(true)),
         vscode.workspace.onDidChangeConfiguration((e) => {
             if (e.affectsConfiguration('codetrackr.apiKey') || e.affectsConfiguration('codetrackr.baseUrl') || e.affectsConfiguration('codetrackr.statusBarStyle')) {
-                tracker.onEvent(false);
-                tracker.refreshStats();
+                tracker.reset();
             }
             if (e.affectsConfiguration('codetrackr.statusBarAlignment')) {
                 tracker.reinitStatusBar();
@@ -90,6 +88,7 @@ export function activate(context: vscode.ExtensionContext) {
     ];
 
     context.subscriptions.push(...subscriptions);
+    context.subscriptions.push(tracker);
 }
 
 class CodeTrackrTracker {
@@ -107,6 +106,22 @@ class CodeTrackrTracker {
         this.statsRefreshInterval = setInterval(() => this.refreshStats(), 300000);
     }
 
+    public dispose() {
+        if (this.statusBar) {
+            this.statusBar.dispose();
+        }
+        if (this.statsRefreshInterval) {
+            clearInterval(this.statsRefreshInterval);
+        }
+    }
+
+    public async reset() {
+        this.lastSentTime = 0;
+        this.lastSentFile = "";
+        await this.refreshStats();
+        await this.onEvent(false);
+    }
+
     public reinitStatusBar() {
         if (this.statusBar) {
             this.statusBar.dispose();
@@ -120,7 +135,6 @@ class CodeTrackrTracker {
         this.statusBar.text = "$(clock) CodeTrackr";
         this.statusBar.tooltip = "Initializing...";
         this.statusBar.show();
-        this.context.subscriptions.push(this.statusBar);
         
         // Mantener el estado actual si lo hay
         this.updateStatusBarUI();
@@ -193,19 +207,23 @@ class CodeTrackrTracker {
             return;
         }
 
+        const apiKey = this.getSaneApiKey();
         const project = vscode.workspace.name || "Unknown";
         const stats = this.currentStatsText ? ` (${this.currentStatsText})` : "";
         
-        // Conservar estados de error si existen
-        if (!this.statusBar.text.includes("$(")) {
-             this.statusBar.text = `$(check) CodeTrackr: ${project}${stats}`;
-        }
-        
-        // Si no tenemos API Key configurada todavía
-        const apiKey = this.getSaneApiKey();
         if (!apiKey || apiKey === "ct_xxxxxxxxxxxxxxxxxxxx") {
             this.statusBar.text = "$(warning) CodeTrackr: Configurar API Key";
             this.statusBar.command = "codetrackr-vscode.enterToken";
+            this.statusBar.tooltip = "Haz clic para configurar tu API Key";
+        } else {
+            // Si el texto actual muestra que falta configuración o está inicializando,
+            // o si estamos actualizando stats, forzamos el texto de éxito.
+            // Solo evitamos sobrescribir si hay un error crítico de API/Red (manejado en sendHeartbeat)
+            if (!this.statusBar.text.includes("$(error)")) {
+                this.statusBar.text = `$(check) CodeTrackr: ${project}${stats}`;
+                this.statusBar.command = "codetrackr-vscode.openDashboard";
+                this.statusBar.tooltip = "CodeTrackr is active";
+            }
         }
     }
 

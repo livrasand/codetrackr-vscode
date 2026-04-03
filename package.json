@@ -4,7 +4,7 @@
   "publisher": "livrasand",
   "icon": "logo.png",
   "description": "Open-source, privacy-first coding metrics with a modular plugin system. Track time across IDEs, join global leaderboards, and build custom dashboard widgets using our developer-friendly API.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "engines": {
     "vscode": "^1.107.0"
   },
@@ -52,7 +52,10 @@
     "url": "https://github.com/livrasand/codetrackr-vscode/issues"
   },
   "homepage": "https://codetrackr.leapcell.app",
-  "activationEvents": [],
+  "activationEvents": [
+    "onStartupFinished",
+    "onFileSystem:file"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "configuration": {
